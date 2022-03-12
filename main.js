@@ -1,30 +1,63 @@
 const fs = require("fs");
-const fsPromises = fs.promises;
 const path = require("path");
 const { Heap } = require("./Heap");
-const { huffman } = require("./huffman");
+const { huffmanEncoder } = require("./huffman");
+let outputfile = 'output.txt';
+let inputfile='input.txt';
 
 
-let arguments = process.argv.splice(2);
 
-let options = {}
-let argmap = [
-	{ flag: "-o", name: "outputFile", length: 2 },
-]
+function ReadFromCommandLine(){
+    const myArgs = process.argv.slice(2);
 
-for (let i = 0; i < arguments.length; i++) {
-	for (let j = 0; j < argmap.length; j++) {
+    for (let i=0; i<myArgs.length; i++){
+        if(myArgs[i]==="-o"){
+            outputfile = myArgs[i+1];
+        }
+        if(myArgs[i]==="-i"){
+            inputfile = myArgs[i+1];
+        }
 
-		if (argmap[j].flag == arguments[i]) {
-			let arr = arguments.splice(i, argmap[j].length);
-			arr.shift();
-			options[argmap[j].name] = arr;
-		}
-	}
+        if(myArgs[i]==="-c"){
+            isEncode = true;
+        }
+
+    }
 }
 
+//function process(){
+ 
+ let data = fs.readFileSync(inputfile, "utf8").toString();
 
+ 
+ let huffmanData = huffmanEncoder(data);
+ 
+ 
+ const replacements = {
+     "\n": "(Line Break)",
+     "\t": "(Tab)",
+     "\r": "(Carriage Return)",
+     " ": "(Space)",
+ }
+ huffmanData = huffmanData.map(({character, value}) => {
+ return {character: (replacements[character] || character),value: value}
+ });
+ 
+//sort data lexigraphically
+ huffmanData.sort(function (a, b) {
+     return a.character < b.character ? -1 : 1;
+ });
+ 
+ let output = "---------- Huffman Dictionary ----------" + "\n";
+ huffmanData.forEach(({character, value}) => {
+     output += `${character}\t\t${value}\n`;
+ });
+ output = output.substring(0, output.length-1);
+ 
+ //output file
+ fs.writeFileSync(outputfile, output);
+//}
 
-let huff = huffman.encode("Shipping ships ship ships");
+ReadFromCommandLine();
+//process();
 
-console.log(huff);

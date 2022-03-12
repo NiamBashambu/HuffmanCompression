@@ -1,19 +1,19 @@
 const { Heap } = require("./Heap");
-stringUtils = class {
 
 
-	//returns string of frequency of characters
-	static getcharacterfrequency(str) {
+
+	//returns a table of strings of characters
+	function frequencytable(string) {
 		let frequency = {};
-		for (let i = 0; i < str.length; i++) {
-			let character = str[i];
+		for (let i = 0; i < string.length; i++) {
+			let character = string[i];
 			frequency[character] = frequency[character] ? frequency[character] + 1 : 1;
 		}
 		return frequency;
 	}
     //lexical order sort
     
-	static lexicSorter(frequencyObject) {
+	function lexicSorter(frequencyObject) {
 		let frequencyArr = [];
 		for (let key in frequencyObject) {
 			frequencyArr.push({
@@ -28,62 +28,66 @@ stringUtils = class {
 		return frequencyArr;
 	}
 
-}
-huffman = class {
-	static #huffmanNode = class {
+
+//huffman class
+	 class huffman {
 		constructor({ character, frequency }) {
 			this.character = character;
 			this.frequency = frequency;
 		}
 	}
-	static #createfrequencyObject(string) {
-		return stringUtils.lexicSorter(stringUtils.getcharacterfrequency(string));
+	function createfrequencyObject(string) {
+		//sorting lexigraphically
+		return lexicSorter(frequencytable(string));
 	}
-	static #createMinHeap(frequencyObject) {
+	//creates a min heap from the heap class
+	function createMinHeap(frequencyObject) {
 		let minHeap = new Heap((a, b) => { return (a.frequency - b.frequency); });
 		for (let i = 0; i < frequencyObject.length; i++) {
-			minHeap.add(new this.#huffmanNode(frequencyObject[i]));
+			//adding huffman nodes
+			minHeap.add(new huffman(frequencyObject[i]));
 		}
 		return minHeap;
 	}
-	//creates a huffman tree based using a heap
-	static #createHuffmanTree(minHeap) {
-		while (minHeap.size() > 1) {
+	//creates a huffman tree using a minheap
+	function createHuffmanTree(minHeap) {
+		while (minHeap.peek() > 1) {
 			let left = minHeap.remove();
 			let right = minHeap.remove();
-			let newNode = new this.#huffmanNode({ character: null, frequency: left.frequency + right.frequency });
+			let newNode = new huffman({ character: null, frequency: left.frequency + right.frequency });
 			newNode.left = left;
 			newNode.right = right;
 			minHeap.add(newNode);
 		}
+		return minHeap.peek();
 	}
-    
-	static #decodeHuffmanTree(minHeap) {
-		let root = minHeap.peek();
+    //decoding huffman tree
+	function decodeHuffmanTree(root) {
+		
 		let huffmanObject = [];
 		decodeHuffmanHelper(root, "")
 
 		function decodeHuffmanHelper(node, string) {
-			if (node.left == null && node.right == null && node.character !== null) {
+			if (node.left == null && node.right == null) {
 				huffmanObject.push({ character: node.character, value: string });
 				return;
 			}
+			//determining the 1s and 0s in the huffman tree
 			decodeHuffmanHelper(node.left, string + "0");
 			decodeHuffmanHelper(node.right, string + "1");
 		}
 		return huffmanObject;
 	}
-    
-    //encoded string by huffman
-	static encode(string) {
-		let frequencyObject = this.#createfrequencyObject(string);
-		let minHeap = this.#createMinHeap(frequencyObject);
-		this.#createHuffmanTree(minHeap);
-		return this.#decodeHuffmanTree(minHeap);
-
+	
+    //encoder function that gets called in main to do all the things
+	function huffmanEncoder(string) {
+		let frequencyObject = createfrequencyObject(string);
+		let minHeap = createMinHeap(frequencyObject);
+		let huffmanTree = createHuffmanTree(minHeap);
+		return decodeHuffmanTree(huffmanTree);
 	}
-}
 
 
 
-module.exports = { huffman }
+
+module.exports = { huffmanEncoder }

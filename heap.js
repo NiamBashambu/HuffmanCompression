@@ -1,21 +1,11 @@
-comparasionUtils = class {
 
-	static lessThan(a, b, comparator) {
+function lessThan(a, b, comparator) {
 		return comparator(a, b) < 0;
 	}
-
-
-}
-
+//generic heap class
 class Heap {
 	#heap = [];
 
-	// comparator must be a function(a,b)
-	// which returns:
-	// < 0 if a < b
-	// = 0 if a == b
-	// > 0 if a > b
-	
 	#comparator = function (a, b) {
 		throw "Comparator not defined!";
 	};
@@ -71,7 +61,7 @@ class Heap {
 		let cur = this.#heap.length - 1;
 		let par = Math.floor((cur - 1) / 2);
 
-		while (cur > 0 && comparasionUtils.lessThan(this.#heap[cur], this.#heap[par], this.#comparator)) {
+		while (cur > 0 && lessThan(this.#heap[cur], this.#heap[par], this.#comparator)) {
 			
 			let swap = this.#heap[par];
 			this.#heap[par] = this.#heap[cur];
@@ -90,10 +80,10 @@ class Heap {
 			let right = (2 * cur) + 2;
 			let sml = cur;
 			
-			if (right < this.#heap.length && comparasionUtils.lessThan(this.#heap[right], this.#heap[sml], this.#comparator)) {
+			if (right < this.#heap.length && lessThan(this.#heap[right], this.#heap[sml], this.#comparator)) {
 				sml = right;
 			}
-			if (left < this.#heap.length && comparasionUtils.lessThan(this.#heap[left], this.#heap[sml], this.#comparator)) {
+			if (left < this.#heap.length && lessThan(this.#heap[left], this.#heap[sml], this.#comparator)) {
 				sml = left;
 			}
 			if (sml === cur) {
